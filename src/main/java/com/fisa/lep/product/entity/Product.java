@@ -21,12 +21,12 @@ public class Product extends BaseEntity {
     @Column(name = "product_id")
     private Long id;
 
-    private String name;
+    private String name; // 상품명
 
-    private BigDecimal price;
+    private BigDecimal price; // 판매가격
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mart_id")
-    private Mart mart;
+    private Mart mart; // 판매업소
 
 }
