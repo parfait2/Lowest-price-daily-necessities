@@ -25,4 +25,7 @@ public class RequestAreaDTO {
 
     // 우편번호
     private String zoneNo; // 04542
+
+    // 행정동 코드
+    private String hjdCode; // 1114055000
 }

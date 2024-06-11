@@ -50,11 +50,12 @@ public class MartService {
     private final ProductRepository productRepository;
     private final InventoryRepository inventoryRepository;
 
-    @Transactional
+//    @Transactional
     public void insertData(String csvFilePath) {
-        try(CSVReader csvReader = new CSVReader(new FileReader(csvFilePath, StandardCharsets.UTF_8))) {
+        try (CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(csvFilePath), StandardCharsets.UTF_8))) {
+//            try(CSVReader csvReader = new CSVReader(new FileReader(csvFilePath, StandardCharsets.UTF_8))) {
             String[] values;
-//            log.info("values : {}", values = csvReader.readNext());
+            log.info("values : {}", values = csvReader.readNext());
 
             while((values = csvReader.readNext()) != null) {
                 String name = values[3]; // 판매 업소
@@ -63,13 +64,30 @@ public class MartService {
 
                 if(!martRepository.existsByName(name)) {
                     String address = naverSearchApi(name); // 서울특별시 중구 수표동 99
-                    RequestAreaDTO areaDTO = getKakaoApiFromAddress(address);
-                    Area area = null;
 
-                    if(!areaRepository.existsByZoneNo(areaDTO.getZoneNo())) {
+                    if (address == null) {
+                        log.error("Address not found for martName: {}", name);
+                        continue; // 주소를 찾을 수 없는 경우 이 항목을 건너뛰기
+                    }
+
+                    RequestAreaDTO areaDTO = getKakaoApiFromAddress(address);
+
+                    if (areaDTO == null) {
+                        log.error("AreaDTO not found for address: {}", address);
+                        continue; // AreaDTO를 찾을 수 없는 경우 이 항목을 건너뛰기
+                    }
+
+//                    Area area = null;
+
+//                    if(!areaRepository.existsByZoneNo(areaDTO.getZoneNo())) {
+//                        area = areaRepository.save(Area.saveArea(areaDTO));
+//                    } else { // 이미 같은 우편번호가 있을 때
+//                        area = areaRepository.findByZoneNo(areaDTO.getZoneNo());
+//                    }
+
+                    Area area = areaRepository.findByHjdCode(areaDTO.getHjdCode());
+                    if (area == null) {
                         area = areaRepository.save(Area.saveArea(areaDTO));
-                    } else { // 이미 같은 우편번호가 있을 때
-                        area = areaRepository.findByZoneNo(areaDTO.getZoneNo());
                     }
                     mart = new Mart(name, area);
                     martRepository.save(mart);
@@ -134,9 +152,17 @@ public class MartService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-        String address = jsonNode.get("items").get(0).get("address").asText();
-//        log.info("주소: {}", address);
-        return address;
+//        String address = jsonNode.get("items").get(0).get("address").asText();
+////        log.info("주소: {}", address);
+//        return address;
+        JsonNode items = jsonNode.get("items");
+        if (items != null && items.isArray() && items.size() > 0) {
+            String address = items.get(0).get("address").asText();
+            return address;
+        } else {
+            log.error("No items found in Naver API response for martName: {}", martName);
+            return null; // 혹은 기본값을 반환하거나, 예외를 던질 수 있습니다.
+        }
     }
 
     /**
@@ -183,6 +209,7 @@ public class MartService {
                         .region2depthName(addressInfo.path("region_2depth_name").asText())
                         .region3depthName(addressInfo.path("region_3depth_name").asText())
                         .region3depthHName(addressInfo.path("region_3depth_h_name").asText())
+                        .hjdCode(addressInfo.path("h_code").asText())
                         .zoneNo(roadAddressInfo.path("zone_no").asText()).build();
             }
         } catch (UnsupportedEncodingException e) {

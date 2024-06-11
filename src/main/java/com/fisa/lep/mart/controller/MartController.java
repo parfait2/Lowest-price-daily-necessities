@@ -43,8 +43,8 @@ public class MartController {
      * */
     @GetMapping("")
     public ResponseEntity<?> insertData(@RequestParam String path) {
-//        String csvPath = "src/main/resources/csv/한국소비자원_생필품 가격 정보_20240517.csv";
-        String csvPath = "src/main/resources/csv/통합 문서1.csv";
+        String csvPath = "src/main/resources/csv/한국소비자원_생필품 가격 정보_20240517 (1) - 복사본.csv";
+//        String csvPath = "src/main/resources/csv/통합 문서1.csv";
         martService.insertData(csvPath);
 
 
@@ -141,6 +141,7 @@ public class MartController {
                         .region2depthName(addressInfo.path("region_2depth_name").asText())
                         .region3depthName(addressInfo.path("region_3depth_name").asText())
                         .region3depthHName(addressInfo.path("region_3depth_h_name").asText())
+                        .hjdCode(addressInfo.path("h_code").asText())
                         .zoneNo(roadAddressInfo.path("zone_no").asText()).build();
             }
 

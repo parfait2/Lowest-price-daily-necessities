@@ -37,6 +37,9 @@ public class Area extends BaseEntity {
     // 우편번호
     private String zoneNo; // 04542
 
+    // 행정동 코드
+    private String hjdCode; // 1114055000
+
     public static Area saveArea(RequestAreaDTO areaDTO) {
         Area area = new Area();
         area.fullAddr = areaDTO.getFullAddr();
@@ -45,6 +48,7 @@ public class Area extends BaseEntity {
         area.region3depthName = areaDTO.getRegion3depthName();
         area.region3depthHName = areaDTO.getRegion3depthHName();
         area.zoneNo = areaDTO.getZoneNo();
+        area.hjdCode = areaDTO.getHjdCode();
 
         return area;
     }
