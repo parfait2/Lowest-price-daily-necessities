@@ -2,10 +2,8 @@ package com.fisa.lep.mart.entity;
 
 import com.fisa.lep.area.entity.Area;
 import com.fisa.lep.common.BaseEntity;
-import com.fisa.lep.mart.dto.request.RequestMartDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -28,11 +26,5 @@ public class Mart extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "area_id")
     private Area area;
-
-    @Builder
-    public Mart(String name, Area area) {
-        this.name = name;
-        this.area = area;
-    }
 
 }
