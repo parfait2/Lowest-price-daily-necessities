@@ -9,6 +9,7 @@ import com.fisa.lep.area.entity.Area;
 import com.fisa.lep.area.repository.AreaRepository;
 import com.fisa.lep.inventory.entity.Inventory;
 import com.fisa.lep.inventory.repository.InventoryRepository;
+import com.fisa.lep.mart.entity.Brand;
 import com.fisa.lep.mart.entity.Mart;
 import com.fisa.lep.mart.repository.MartRepository;
 import com.fisa.lep.product.entity.Product;
@@ -89,12 +90,22 @@ public class MartService {
                     if (area == null) {
                         area = areaRepository.save(Area.saveArea(areaDTO));
                     }
-                    mart = new Mart(name, area);
+
+                    Brand brand;
+
+                    try {
+                        brand = Brand.valueOf(values[7].toUpperCase());
+                    } catch (IllegalArgumentException | NullPointerException e) {
+                        log.warn("Invalid brand: {}. Setting default brand to NH.", values[7]);
+                        brand = Brand.NONE;
+                    }
+
+                    mart = new Mart(name, brand, area);
                     martRepository.save(mart);
                 } else {
                     mart = martRepository.findByName(name).orElse(null);
                 }
-
+//Thread.sleep(100);
                 Product product = null;
 
                 if (!productRepository.existsByName(values[0])) {
